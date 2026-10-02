@@ -1,0 +1,6 @@
+{
+  "name": "Phát thanh Phường Cẩm Thành",
+  "description": "Ứng dụng phát thanh và chuyển đổi văn bản sang giọng đọc miền Trung (Quảng Ngãi) chất lượng cao cho Phường Cẩm Thành.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
