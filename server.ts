@@ -19,7 +19,21 @@ setGlobalDispatcher(
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
 
-app.use(express.json());
+// Trust first proxy (Crucial for Nginx reverse proxy on Ubuntu)
+app.set("trust proxy", 1);
+
+app.use(express.json({ limit: "15mb" }));
+
+// Health check endpoint for Nginx / PM2 / monitoring
+app.get("/api/health", (_req, res) => {
+  res.json({
+    status: "ok",
+    node: process.version,
+    port: PORT,
+    uptimeSeconds: Math.floor(process.uptime()),
+    timestamp: new Date().toISOString()
+  });
+});
 
 // Lazy-loaded Gemini client
 let aiClient: any = null;
@@ -219,15 +233,35 @@ async function startServer() {
     app.use(vite.middlewares);
   } else {
     const distPath = path.join(process.cwd(), 'dist');
-    app.use(express.static(distPath));
-    app.get('*', (req, res) => {
+    // Serve static assets with cache headers
+    app.use(express.static(distPath, {
+      maxAge: '1d',
+      setHeaders: (res, filePath) => {
+        if (filePath.endsWith('.html')) {
+          res.setHeader('Cache-Control', 'no-cache');
+        }
+      }
+    }));
+    app.get('*', (_req, res) => {
       res.sendFile(path.join(distPath, 'index.html'));
     });
   }
 
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on port ${PORT}`);
+  const server = app.listen(PORT, "0.0.0.0", () => {
+    console.log(`[Audio Smart] Server running on http://0.0.0.0:${PORT} (Node ${process.version})`);
   });
+
+  // Graceful shutdown handler for PM2 on Ubuntu
+  const shutdown = () => {
+    console.log("[Audio Smart] Received termination signal, shutting down gracefully...");
+    server.close(() => {
+      console.log("[Audio Smart] Server closed successfully.");
+      process.exit(0);
+    });
+  };
+
+  process.on("SIGTERM", shutdown);
+  process.on("SIGINT", shutdown);
 }
 
 startServer();

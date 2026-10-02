@@ -1,0 +1,69 @@
+# ==============================================================================
+# Cấu hình Nginx tối ưu cho ứng dụng Phát Thanh Thông Minh
+# Tên miền: audio.pvantho.id.vn
+# Cổng ứng dụng Node.js PM2: 3007
+#
+# Hướng dẫn kích hoạt trên Ubuntu:
+#   sudo cp /var/www/audio_smart/nginx.conf.example /etc/nginx/sites-available/audio.pvantho.id.vn
+#   sudo ln -sf /etc/nginx/sites-available/audio.pvantho.id.vn /etc/nginx/sites-enabled/
+#   sudo nginx -t
+#   sudo systemctl reload nginx
+# ==============================================================================
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name audio.pvantho.id.vn;
+
+    # Tối ưu nén Gzip giúp tải nhanh trên mạng di động
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_proxied any;
+    gzip_comp_level 6;
+    gzip_types
+        text/plain
+        text/css
+        application/json
+        application/javascript
+        text/xml
+        application/xml
+        application/xml+rss
+        text/javascript
+        image/svg+xml;
+
+    # Cấu hình kích thước tải lên và thời gian chờ (dành cho xử lý giọng nói TTS)
+    client_max_body_size 50M;
+    client_body_timeout 300s;
+    proxy_read_timeout 300s;
+    proxy_connect_timeout 300s;
+    proxy_send_timeout 300s;
+
+    # Tối ưu proxy buffers
+    proxy_buffering on;
+    proxy_buffers 16 16k;
+    proxy_buffer_size 16k;
+
+    # Định tuyến toàn bộ kết nối đến Node.js (cổng 3007)
+    location / {
+        proxy_pass http://127.0.0.1:3007;
+        proxy_http_version 1.1;
+
+        # Hỗ trợ WebSocket và kết nối dài
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+
+        # Forward IP thực tế của người dùng
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # Endpoint kiểm tra trạng thái sức khỏe máy chủ
+    location = /api/health {
+        proxy_pass http://127.0.0.1:3007/api/health;
+        access_log off;
+    }
+}
