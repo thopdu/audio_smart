@@ -2,8 +2,8 @@ module.exports = {
   apps: [
     {
       name: 'audio_smart',
-      script: 'server.ts',
-      interpreter: 'tsx',
+      script: './node_modules/.bin/tsx',
+      args: 'server.ts',
       instances: 1,
       autorestart: true,
       watch: false,
