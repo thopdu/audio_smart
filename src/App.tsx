@@ -84,6 +84,34 @@ export default function App() {
   // History state saved in localStorage
   const [history, setHistory] = useState<GeneratedAudio[]>([]);
 
+  // Real-time Clock in GMT+7 (Asia/Ho_Chi_Minh)
+  const formatHCMTime = () => {
+    const now = new Date();
+    const dateStr = now.toLocaleDateString("vi-VN", {
+      timeZone: "Asia/Ho_Chi_Minh",
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric"
+    });
+    const timeStr = now.toLocaleTimeString("vi-VN", {
+      timeZone: "Asia/Ho_Chi_Minh",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false
+    });
+    return { dateStr, timeStr };
+  };
+
+  const [hcmClock, setHcmClock] = useState<{ dateStr: string; timeStr: string }>(formatHCMTime);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setHcmClock(formatHCMTime());
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   // DOM Refs
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const broadcastIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -209,10 +237,13 @@ export default function App() {
         Fenrir: "Nam Thiên Bút (Fenrir)"
       };
 
+      const now = new Date();
+      const hcmTimeFormatted = now.toLocaleTimeString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh", hour: '2-digit', minute: '2-digit', second: '2-digit' }) + " - " + now.toLocaleDateString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh", day: '2-digit', month: '2-digit', year: 'numeric' });
+
       const newAudioItem: GeneratedAudio = {
         id: `audio-${Date.now()}`,
         text: text,
-        timestamp: new Date().toLocaleTimeString("vi-VN", { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + " - " + new Date().toLocaleDateString("vi-VN"),
+        timestamp: hcmTimeFormatted,
         voice: selectedVoice,
         voiceLabel: voiceLabels[selectedVoice] || selectedVoice,
         speed,
@@ -467,8 +498,16 @@ export default function App() {
       {/* Header: Official Branding */}
       <header className="min-h-16 py-2.5 sm:py-0 bg-blue-900 text-white flex items-center justify-between px-4 sm:px-6 md:px-8 shrink-0 shadow-lg" id="app_header">
         <div className="flex items-center gap-3 sm:gap-4 min-w-0">
-          <div className="w-9 h-9 sm:w-10 sm:h-10 bg-white/20 rounded-full flex items-center justify-center border border-white/10 shadow-sm shrink-0">
-            <Mic className="w-4 h-4 sm:w-5 sm:h-5 text-amber-300" />
+          <div className="relative w-9 h-9 sm:w-11 sm:h-11 rounded-xl overflow-hidden border border-white/20 shadow-md shrink-0 bg-blue-950 flex items-center justify-center">
+            <img
+              src="/app-icon.jpg"
+              alt="Logo Hệ thống phát thanh thông minh"
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                (e.currentTarget as HTMLElement).style.display = 'none';
+              }}
+            />
+            <Mic className="w-4 h-4 sm:w-5 sm:h-5 text-amber-300 absolute" />
           </div>
           <div className="min-w-0">
             <h1 className="text-sm sm:text-base md:text-lg font-bold leading-tight tracking-wide flex items-center gap-2 truncate">
@@ -488,9 +527,11 @@ export default function App() {
             </div>
             <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-green-300">TRỰC TUYẾN</span>
           </div>
-          <div className="hidden md:block text-right text-xs">
-            <span className="text-blue-200 block">Dải tần FM: <strong className="text-white">98.5 MHz</strong></span>
-            <span className="font-mono text-amber-200 font-bold">{new Date().toLocaleDateString("vi-VN")} | 19:15</span>
+          <div className="hidden sm:block text-right text-xs">
+            <span className="text-blue-200 block text-[11px]">Dải tần FM: <strong className="text-white">98.5 MHz</strong></span>
+            <span className="font-mono text-amber-200 font-bold tracking-tight">
+              {hcmClock.dateStr} | {hcmClock.timeStr} <span className="text-[10px] text-amber-300 font-semibold">GMT+7</span>
+            </span>
           </div>
         </div>
       </header>

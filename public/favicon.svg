@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e3a8a"/>
+      <stop offset="50%" stop-color="#172554"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="50%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#b45309"/>
+    </linearGradient>
+    <linearGradient id="cyanGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </linearGradient>
+  </defs>
+
+  <!-- App Rounded Squircle Container -->
+  <rect width="64" height="64" rx="14" fill="url(#bgGrad)" stroke="#3b82f6" stroke-width="1.5" />
+  
+  <!-- Outer Radio Waves -->
+  <path d="M12 28 C 12 16, 52 16, 52 28" fill="none" stroke="url(#cyanGrad)" stroke-width="2.5" stroke-linecap="round" opacity="0.6"/>
+  <path d="M18 31 C 18 21, 46 21, 46 31" fill="none" stroke="url(#cyanGrad)" stroke-width="2.5" stroke-linecap="round" opacity="0.85"/>
+  <path d="M24 34 C 24 26, 40 26, 40 34" fill="none" stroke="#67e8f9" stroke-width="2.5" stroke-linecap="round" />
+
+  <!-- Center Broadcasting Antenna / Mic Tower -->
+  <!-- Base Stand -->
+  <path d="M22 54 L42 54" stroke="url(#goldGrad)" stroke-width="3" stroke-linecap="round" />
+  <path d="M32 46 L32 54" stroke="url(#goldGrad)" stroke-width="3" stroke-linecap="round" />
+  
+  <!-- Mic U-Holder -->
+  <path d="M26 38 C 26 44, 38 44, 38 38" fill="none" stroke="url(#goldGrad)" stroke-width="2.5" stroke-linecap="round" />
+  
+  <!-- Microphone Capsule Body -->
+  <rect x="28" y="24" width="8" height="15" rx="4" fill="url(#goldGrad)" />
+  <line x1="28" y1="30" x2="36" y2="30" stroke="#78350f" stroke-width="1.5" />
+
+  <!-- Signal Pulse Dot -->
+  <circle cx="32" cy="14" r="2.5" fill="#ef4444" />
+</svg>
